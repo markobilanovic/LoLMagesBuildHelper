@@ -253,11 +253,11 @@
 					<c:choose>
 						<c:when test = '${pickedChampions.myChampionKey != null }'>
 							<img id="imgA1" width="50%" src="http://ddragon.leagueoflegends.com/cdn/img/champion/splash/${pickedChampions.myChampionKey}_0.jpg"
-								onerror="this.src='img/onErrorBig.jpg';" style="position: absolute; top: 0px; left: 0px; z-index: 0;"/>
+								onerror="this.src='img/onErrorBig.jpg';" style="position: absolute; top: 0px; left: 0px; z-index: 0;transform:scale(-1,1)"/>
 						</c:when>
 						<c:when test = '${pickedChampions.myChampionKey == null }'>
 							<img id="imgA1" width="50%" src="" onerror="this.src='img/onErrorBig.jpg';"
-								style="position: absolute; top: 0px; left: 0px; z-index: 0;"/>
+								style="position: absolute; top: 0px; left: 0px; z-index: 0;transform:scale(-1,1)"/>
 						</c:when>
 					</c:choose>
 					</div>
