@@ -256,7 +256,7 @@
 								onerror="this.src='img/onErrorBig.jpg';" style="position: absolute; top: 0px; left: 0px; z-index: 0;transform:scale(-1,1)"/>
 						</c:when>
 						<c:when test = '${pickedChampions.myChampionKey == null }'>
-							<img id="imgA1" width="50%" src="" onerror="this.src='img/onErrorBig.jpg';"
+							<img id="imgA1" width="50%" src="" onerror="this.src='img/onErrorBig2.jpg';"
 								style="position: absolute; top: 0px; left: 0px; z-index: 0;transform:scale(-1,1)"/>
 						</c:when>
 					</c:choose>
@@ -268,7 +268,7 @@
 							onerror="this.src='img/onErrorBig.jpg';" style="position: absolute; top:-1px; left: 50%; z-index: 0;"/>
 						</c:when>
 						<c:when test = '${pickedChampions.enemyLanerKey == null }'>
-							<img id="imgB1" width="50%" src="" onerror="this.src='img/onErrorBig.jpg';"
+							<img id="imgB1" width="50%" src="" onerror="this.src='img/onErrorBig2.jpg';"
 									style="position: absolute; top:-1px; left: 50%; z-index: 0;"/>
 						</c:when>
 					</c:choose>
