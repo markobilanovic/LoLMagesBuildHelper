@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Submission for Riot API Challenge 2.0">
+    <meta name="author" content="Bilanovic Marko">
+
+    <title>LOL Mages Build Helper</title>
+
+    <!-- CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/business-casual.css" rel="stylesheet">
+	<link href="fm.selectator.jquery.css" rel="stylesheet"/>
+	<link href="combobox.css" rel="stylesheet">
+	<link href="font-trebuchet.css" rel="stylesheet">
+	
+	<!-- JS -->
+	<script src="jquery-1.11.0.min.js"></script>
+	<script src="fm.selectator.jquery.js"></script>
+	<script src="resizeUpdater.js"></script>
+	<script src="combobox.js"></script>
+	<script src="myFunctions.js"></script>
+
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default"  >
+        <div class="container">
+			<ul class="nav navbar-nav">
+				<li>
+					<a href="HomeServlet">Home</a>
+				</li>
+				<li>
+					<a href="about.html">About</a>
+				</li>
+				
+			</ul>         
+        </div>
+	</nav>
+	
+	<div class="container body-content" >
+
+		<div class="row">
+			<h1 style="color:#5ED437">1. What is this, and how should I use it?</h1>
+			<p style="color:#5ED437">
+				<strong><em>LoL Mages Build Helper</em></strong> is project made as a submission for 
+				<a href="http://na.leagueoflegends.com/en/news/community/contests/riot-games-api-challenge-20">Riot API Challenge 2.0</a></br>
+				Purpose of this website is to help LoL players to learn which items should they buy in certain matchups, 
+				in different phases of the game.</br>
+				Because of the size of project, this website supports creation of item sets for 
+				<a href="http://leagueoflegends.wikia.com/wiki/Category:Mage_champion">mages</a> only...for now.
+			</p>
+			<p style="color:#5ED437">
+				On home page there are ten champion picker controls. One is for champion that you are playing, 
+				one for enemy champion that you are laning against, 4 are for allies that you are playing with, 
+				and remaining 4 are for rest of the enemy champions.</br>
+				But to get an item set you don't need to pick all ten champions, only two is enough: 'My Champion' and 'Enemy Laner'.</br>
+				After hitting the button <em style="color:#F70505">Calculate</em> item set will be shown on bottom of the page, 
+				and on the right side there will be button <em style="color:#F70505">Download</em> so that players could import that item set 
+				into the game.
+			</p>
+		
+		
+		</div>
+		
+		<div class="row">
+			<h1 style="color:#5ED437">2. How it's made?</h1>
+			
+			<p style="color:#5ED437">
+			Determining if item was good or bad for certain matchup is done by grading efficiency of champions after buying 
+			predefined items. </br>
+			Surely when players are much better then opponent they could buy even some not so good items and still 
+			perform better then opponent. That is something we will let it slide...hopefully 
+			<a href="https://en.wikipedia.org/wiki/Law_of_large_numbers">law of large numbers</a> will solve this problem.
+			</p>
+
+			<h3 style="color:#5ED437; padding-left:1em"><i>2.1. Grading analysis</i></h3>
+			<p style="color:#5ED437">
+			Current state of champion progress is graded with values of 
+			<strong><a href="http://leagueoflegends.wikia.com/wiki/Gold">TOTAL GOLD</a> and <a href="http://leagueoflegends.wikia.com/wiki/Experience_(champion)">XP</a></strong>.</br>
+			"Where is KDA in all of this?" - 
+			Killing or assisting in kills gives champion XP and GOLD, so KDA is ignored and 
+			these two paremeters have been named as valid ones.</br>
+			After analyzing values of total gold and XP it was concluded that they have similar values while the match is passing by,</br>
+			so merging these two values into one is done by simple summation <i><em style="color:#F70505">(GRADE = TOTAL GOLD + XP)</em></i>.</br>
+			Grades are assigned to items, and item with highest grade is best for selected combination of champion matchup.</br>
+			Items are graded separately in different periods of game. There are 5 defined periods:
+			</p>	
+			<ul style="color:#5ED437">
+			  <li>Starting items</li>
+			  <li>Early game items</li>
+			  <li>Mid game losing items</li>
+			  <li>Mid game winning items</li>
+			  <li>Late game items</li>
+			</ul>
+			
+			
+			<h3 style="color:#5ED437; padding-left:1em"><i>2.2. Realization</i></h3>
+			
+			<p style="color:#5ED437">
+			After determining what and how it should be made, making Class Diagram can start. Every mage has it's enemy laner, allies and other enemies, and all of those relations should have grade for every item in already defined periods of game. Here is a result:
+			</p>
+			<div style="text-align: center">
+				<img src="img/ClassDiagram_Model.jpg" style="width:75%"></img>
+				<p style="color:#5ED437">Image 1. Class Diagram of model</p>
+			</div>
+			</br>
+			<p style="color:#5ED437">
+			Around 200.000 matches after patch 5.14 were processed. And every match went trough process described in this pseudo code:
+			</p>
+			<pre>FOR EACH champion IN match
+	IF champion IS solo lane AND champion IS mage THEN
+		FOR EACH event IN match_timeline
+			IF event_type IS item_purchased
+				IF item IS one of defined ap items
+					write down my_champion_grade before and after 10min
+					write down enemy_laner_grade before and after 10min
+					write down my_team_grade before and after 10min
+					write down enemy_team_ggrade before and after 10min
+					laning_grade = (my_champion_grade_end - enemy_laner_grade_end) - (my_champion_grade_start - enemy_laner_grade_start)
+					team_grade = ((my_team_grade_end - enemy_team_grade_end) - (my_team_grade_start - enemy_team_grade_start)) / 5
+					
+					IF item IS bought before 10min 
+						early_game_item UPDATE grade based on laning_grade
+					ELSE IF item IS bought before 22min
+						IF my_champion_grade_before IS less then enemy_champion_grade_before
+							mid_game_losing_item UPDATE grade based on team_grade
+						ELSE
+							mid_game_winning_item UPDATE grade based on team_grade
+					ELSE
+						late_game_item UPDATE grade based on team_grade
+				ELSE IF item IS purchased before 2:30
+					write down my_champion_grade before and after 7min
+					write down enemy_laner_grade before and after 7min
+					laning_grade = (my_champion_grade_end - enemy_laner_grade_end) - (my_champion_grade_start - enemy_laner_grade_start)
+					starting_items UPDATE grade based on laning_grade</pre>
+					
+			<p style="color:#5ED437; text-align: center">Text 1. Pseudo code of match processing</p>
+			
+			</br>
+			<p style="color:#5ED437">
+			Since host for this web application has limit of 10.000 rows in database, and this application demands much more rows, database is stored on server as JSON files.</br>
+			Structure of JSON for selected 'My Champion' is shown in Text 2.
+			</p>
+			<pre style="max-height:350px; width:60%;margin:0 auto;">{
+	"id": Example_id,
+	"name": "Example name",
+	"key": "Example key",
+	"enemyLaners": [
+	{
+		"id": Example_id2,
+		"name": "Example name2",
+		"key": "Example key2",
+		"numOfAppearences": Example_num
+		"startingItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"earlyGameItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"midGameLosingItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"midGameWinningItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"lateGameItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+	},
+	...
+	],
+	"otherEnemies": [
+	{
+		"id": Example_id2,
+		"name": "Example name2",
+		"key": "Example key2",
+		"numOfAppearences": Example_num
+		"startingItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"earlyGameItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"midGameLosingItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"midGameWinningItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"lateGameItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+	},
+	...
+	],
+	"allyChampions": [
+	{
+		"id": Example_id2,
+		"name": "Example name2",
+		"key": "Example key2",
+		"numOfAppearences": Example_num
+		"startingItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"earlyGameItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"midGameLosingItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"midGameWinningItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+		"lateGameItems" : [
+		{
+			"id": Example_id3,
+			"name": "Example key3",
+			"grade": "Example grade",
+			"boughtCount": Example_count
+		},
+		...
+		],
+	},
+	...
+	]
+	
+}</pre>
+			
+			<p style="color:#5ED437; text-align: center">Text 2. Structure of JSON database file</p>
+			
+			</br>
+			
+		</div>
+		
+		<div class="row" >
+			<p style="color:#5ED437">
+			Finding <em style="color:#F70505">Best item set</em> for selected combination of champion matchup is implemented on server.</br>
+			'Starting items' and 'Early game items' depends only from 'Enemy laner', while other categories depends from all selected champions.</br>
+			After summation of all grades items with grades zero or below are removing.</br>
+			If the result for specific period has an item that is already shown in previous period item is removed.
+			Also if specific period has more then one 'Boots' item, only one boots with highest grade will be kept.</br>
+			Resulted items are sorted in descending order from left to right.
+			</p>
+		</div>
+		
+		
+		<div class="row" >
+			<h1 style="color:#5ED437">3. Future upgrade</h1>
+			<p style="color:#5ED437">
+			In next versions of <strong><em>LoL Mages Build Helper</em></strong> new expected features are: 
+			</p>
+			<ul style="list-style-type:disc; color:#5ED437">
+			  <li>Calculating item set for any solo laner based on matchup</li>
+			  <li>Calculating item set for jungler based on matchup</li>
+			  <li>Calculating item set for duo lane(support and adc) based on matchup</li>
+			  <li>Spell maxing order based on matchup</li>
+			  <li>Contribution to stats by giving summoner name, and analyze his itemization.</li>
+			</ul>  
+		</div>
+		
+	</div>
+	
+	
+    <footer style="margin-top: 25px;">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                   <p style="text-align:center; font-size: 14px"><strong><em>LoL Mages Build Helper</em></strong> isn&#39;t endorsed by Riot Games and doesn&#39;t reflect the views or opinions of Riot Games <br/> or anyone officially involved in producing or managing <em>League of Legends</em>.<br/> <em>League of Legends</em> and Riot Games are trademarks or registered trademarks of<br/> Riot Games, Inc. <em>League of Legends</em> &copy; Riot Games, Inc.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+  <!--  <script src="js/jquery.js"></script>-->
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <!-- Script to Activate the Carousel -->
+    <script>
+    $('.carousel').carousel({
+        interval: 5000 //changes the speed
+    })
+    </script>
+
+</body>
+
+</html>

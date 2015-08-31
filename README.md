@@ -1,4 +1,4 @@
-# LoLMagesBuildHelper
+#LoL Mages Build Helper
 
 LoL Mages Build Helper is project made as a submission for Riot API Challenge 2.0.
 
