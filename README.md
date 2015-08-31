@@ -16,8 +16,14 @@ Website link: https://lol-mages-build-helper.herokuapp.com
 * Bootstrap
 * Javascript
 
-
+#Run Localy
+Eclipse : Run as->Maven build
+Goals: install
+Copy exported WAR file in Apache TomEE or other web server
 
 
 ___
-Author: Marko Bilanović
+#Author
+Name: Marko Bilanović 
+Summoner name: penetrator1990
+Region: EUNE
