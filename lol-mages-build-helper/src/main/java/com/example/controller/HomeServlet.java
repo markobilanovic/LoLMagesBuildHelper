@@ -22,7 +22,6 @@ import org.json.simple.parser.ParseException;
 public class HomeServlet extends HttpServlet{
 
 	
-	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -34,7 +33,7 @@ public class HomeServlet extends HttpServlet{
 	    try {
 	    	String staticDataUrl = "https://global.api.pvp.net/api/lol/static-data/eune/v1.2/champion";
 	    	String includeChampionTags = "?champData=tags";
-	    	String apiKey = "&api_key=6d866a5a-716c-4b87-8b32-7d6080aa3770";
+	    	String apiKey = "&api_key="  + Helper.apiKey;
 			URL url = new URL(staticDataUrl + includeChampionTags + apiKey);
 	        reader = new BufferedReader(new InputStreamReader(url.openStream()));
 			JSONParser parser = new JSONParser();
