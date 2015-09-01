@@ -28,6 +28,8 @@ Then run it with:
 
 $java -jar target/dependency/webapp-runner.jar target/*.war
 
+Or just copy .war file from war_file folder into your web server
+
 
 
 ##Legal
