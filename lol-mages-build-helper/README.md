@@ -1,5 +1,5 @@
 
-Insert API key at in Helper class that can be found in java.com.example.controller package
+Insert API key in Helper class that can be found in java.com.example.controller package
 
 ## Running the application locally
 
